@@ -5,55 +5,101 @@
 <a href="{% url 'expenses:expense-create' %}">add</a>
 
 <form method="get" action="">
-  {{form.as_p}}
+  {{ form.as_p }}
+  <label for="sort_by">Sort by:</label>
+  <select name="sort_by" id="sort_by">
+    <option value="">Select...</option>
+    <option value="category">Category (A-Z)</option>
+    <option value="-category">Category (Z-A)</option>
+    <option value="date">Date (Oldest first)</option>
+    <option value="-date">Date (Newest first)</option>
+  </select>
   <button type="submit">search</button>
 </form>
 <br>
 <table border="1">
-	<caption>Expenses</caption>
-	<thead>
-	  <tr>
-		<th>no.</th>
-		<th>category</th>
-		<th>name</th>
-		<th>amount</th>
-		<th>date</th>
-		<th>actions</th>
-	  </tr>
-	</thead>
-	<tbody>
+    <caption>Expenses</caption>
+    <thead>
+      <tr>
+        <th>no.</th>
+        <th>category</th>
+        <th>name</th>
+        <th>amount</th>
+        <th>date</th>
+        <th>actions</th>
+      </tr>
+    </thead>
+    <tbody>
 
-	{% for obj in object_list %}
-	  <tr>
-		<td>{{ page_obj.start_index|add:forloop.counter0 }}.</td>
-		<td>{{ obj.category|default:"-" }}</td>
-		<td>{{ obj.name|default:"-" }}</td>
-		<td>{{ obj.amount|floatformat:2 }}</td>
-		<td>{{obj.date}}</td>
-		<td>
-		  <a href="{% url 'expenses:expense-edit' obj.id %}">edit</a>
-		  <a href="{% url 'expenses:expense-delete' obj.id %}">delete</a>
-		</td>
-	  </tr>
-	  {% empty %}
-	  <tr>
-		<td colspan="5">no items</td>
-	  </tr>
-	{% endfor %}
-	</tbody>
+    {% for obj in object_list %}
+      <tr>
+        <td>{{ page_obj.start_index|add:forloop.counter0 }}.</td>
+        <td>{{ obj.category|default:"-" }}</td>
+        <td>{{ obj.name|default:"-" }}</td>
+        <td>{{ obj.amount|floatformat:2 }}</td>
+        <td>{{ obj.date }}</td>
+        <td>
+          <a href="{% url 'expenses:expense-edit' obj.id %}">edit</a>
+          <a href="{% url 'expenses:expense-delete' obj.id %}">delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6">no items</td>
+      </tr>
+    {% endfor %}
+    </tbody>
 </table>
 
 {% include "_pagination.html" %}
 <hr>
+
+<div style="display: flex; gap: 20px;">
+  <table border="1">
+    <caption>Summary per category</caption>
+    <tr>
+      {% for category, total in summary_per_category.items %}
+      <tr>
+          <td>{{ category }}:</td>
+          <td>{{ total|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tr>
+  </table>
+
+  <div style="width: 200px;">
+    <table border="1" style="width: 100%;">
+      <caption>Total Spent</caption>
+      <tr>
+        <td>Total:</td>
+        <td>{{ total_spent|floatformat:2 }}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
 <table border="1">
-  <caption>Summary per category</caption>
-  <tr>
-    {% for category, total in summary_per_category.items %}
-	<tr>
-		<td>{{category}}:</td>
-		<td>{{total|floatformat:2}}</td>
-	</tr>
-	{% endfor %}
-  </tr>
+  <caption>Monthly Summary</caption>
+  <thead>
+    <tr>
+      <th>Year-Month</th>
+      <th>Total Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in monthly_summary %}
+    <tr>
+      <td>{{ item.year_month|date:"Y-m" }}</td>
+      <td>{{ item.total_amount|floatformat:2 }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="2">no data</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+
 {% endblock %}
