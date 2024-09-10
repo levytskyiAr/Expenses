@@ -69,4 +69,3 @@ class CategoryUpdateView(UpdateView):
     form_class = CategoryForm
     template_name = 'category_update.html'
     success_url = reverse_lazy('expenses:category-list')
-
